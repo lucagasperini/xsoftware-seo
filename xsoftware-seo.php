@@ -198,37 +198,38 @@ class xs_seo_plugin
                 $permalink = get_permalink($post->ID);
                 $title = $post->post_title;
                 $name = get_bloginfo( 'name' );
+                var_dump($meta_tags);
                 
                 echo '<meta name="twitter:card" content="summary"/>'; //FORCED
-                if(isset($meta_tags[$this->prefix.'descr'])) {
-                        echo '<meta name="description" content="'.$meta_tags[$this->prefix.'descr'].'"/>';
-                        echo '<meta property="og:description" content="'.$meta_tags[$this->prefix.'descr'].'" />';
-                        echo '<meta name="twitter:description" content="'.$meta_tags[$this->prefix.'descr'].'" />';
+                if(!empty($meta_tags['descr'])) {
+                        echo '<meta name="description" content="'.$meta_tags['descr'].'"/>';
+                        echo '<meta property="og:description" content="'.$meta_tags['descr'].'" />';
+                        echo '<meta name="twitter:description" content="'.$meta_tags['descr'].'" />';
                 }
                 
-                if(isset($name))
+                if(!empty($name))
                         echo '<meta property="og:site_name" content="'.$name.'"/>';
                         
-                if(isset($meta_tags[$this->prefix.'keyword']))
-                        echo '<meta name="keywords" content="'.$meta_tags[$this->prefix.'keyword'].'"/>';
+                if(!empty($meta_tags['keyword']))
+                        echo '<meta name="keywords" content="'.$meta_tags['keyword'].'"/>';
                         
                 /*if(isset($meta_tags["sydney_meta_robots"]))
                         echo '<meta name="robots" content="'.$meta_tags["sydney_meta_robots"][0].'"/>';
                       */  
-                if(isset($title)) {
+                if(!empty($title)) {
                         echo '<meta property="og:title" content="'.$title.'" />';
                         echo '<meta name="twitter:title" content="'.$title.'" />';
                 }
-                if(isset($permalink))
+                if(!empty($permalink))
                         echo '<meta property="og:url" content="'.$permalink.'" />';
                         
-                if(isset($meta_tags[$this->prefix.'type']))
-                        echo '<meta property="og:type" content="'.$meta_tags[$this->prefix.'type'].'" />';
+                if(!empty($meta_tags['type']))
+                        echo '<meta property="og:type" content="'.$meta_tags['type'].'" />';
                         
-                if(isset($meta_tags[$this->prefix.'thumb'])) {
-                        list($width, $height) = getimagesize($meta_tags[$this->prefix.'thumb']);
-                        echo '<meta property="og:image" content="'.$meta_tags[$this->prefix.'thumb'].'" />';
-                        echo '<meta name="twitter:image" content="'.$meta_tags[$this->prefix.'thumb'].'" />';
+                if(!empty($meta_tags['thumb'])) {
+                        list($width, $height) = getimagesize($meta_tags['thumb']);
+                        echo '<meta property="og:image" content="'.$meta_tags['thumb'].'" />';
+                        echo '<meta name="twitter:image" content="'.$meta_tags['thumb'].'" />';
                         echo '<meta property="og:image:width" content="'.$width.'" />';
                         echo '<meta name="og:image:height" content="'.$height.'" />';
                         
