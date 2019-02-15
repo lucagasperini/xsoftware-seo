@@ -74,7 +74,9 @@ class xs_seo_plugin
         {
                 $values = get_post_custom( $post->ID );
                 
+                xs_framework::init_admin_script();
                 xs_framework::init_admin_style();
+                wp_enqueue_media();
                 
                 foreach($this->options['fields'] as $key => $single) {
                         $selected[$key] = $single;
