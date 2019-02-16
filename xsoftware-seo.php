@@ -15,7 +15,7 @@ class xs_seo_plugin
 {
 
         private $default = array (
-                'post_types' => [
+                'post_type' => [
                         'post',
                         'page'
                 ],
@@ -54,7 +54,7 @@ class xs_seo_plugin
                 add_action('save_post', array($this,'save'), 10, 2 );
                 add_action('add_meta_boxes', array($this, 'metaboxes'));
                 add_action('wp_head', array($this, 'head'));
-                
+               
                 $this->options = get_option('xs_options_seo', $this->default);
         }
         
@@ -64,7 +64,7 @@ class xs_seo_plugin
                         'xs_seo_metaboxes', 
                         'XSoftware SEO', 
                         array($this,'metaboxes_print'), 
-                        $this->options['post_types'],
+                        $this->options['post_type'],
                         'advanced',
                         'high'
                 );
@@ -133,7 +133,7 @@ class xs_seo_plugin
         function save($post_id, $post)
         {
                 $post_type = get_post_type($post_id);
-                if (!in_array($post_type, $this->options['post_types'])) return;
+                if (!in_array($post_type, $this->options['post_type'])) return;
                 
                 foreach($this->options['fields'] as $key => $single) {
                         if(isset($_POST[$this->prefix.$key]))
@@ -178,12 +178,34 @@ class xs_seo_plugin
 
         function show()
         {
-
+                $tab = xs_framework::create_tabs( array(
+                        'href' => '?page=xsoftware_seo',
+                        'tabs' => array(
+                                'home' => 'Homepage',
+                                'post' => 'Post Types'
+                        ),
+                        'home' => 'home',
+                        'name' => 'main_tab'
+                ));
+                
+                switch($tab) {
+                        case 'home':
+                                return;
+                        case 'post':
+                                $this->show_post_type();
+                                return;
+                }
         }
 
         function input($input)
         {
                 $current = $this->options;
+                
+                foreach($input as $key => $value) {
+                        if($key == 'post_type')
+                                $current[$key] = array_keys($value);
+                }
+                
                 return $current;
         }
         
@@ -244,6 +266,29 @@ class xs_seo_plugin
                 if(isset($meta_tags["sydney_meta_og_audio"][0]))
                         echo '<meta property="og:audio" content="'.$meta_tags["sydney_meta_og_audio"][0].'" />';
                 */
+        }
+        
+        function show_post_type() 
+        {
+                echo '<h2>Filter Post Type</h2>';
+                // get the information that actually is in the DB
+                $options = isset($this->options['post_type']) ? $this->options['post_type'] : '';
+                
+                $post_types = get_post_types(['_builtin' => false]); // get all custom post types
+                $post_types['post'] = 'post'; // add default post type
+                $post_types['page'] = 'page'; // add default post type
+
+                $headers = array('Enable / Disable', 'Post types');
+                $data_table = array();
+                foreach($post_types as $post_type) {
+                        $data_table[$post_type][0] = xs_framework::create_input_checkbox( array(
+                                'name' => 'xs_options_seo[post_type]['.$post_type.']',
+                                'compare' => in_array($post_type, $options)
+                        ));
+                        $data_table[$post_type][1] = $post_type;
+                        
+                }
+                xs_framework::create_table(array('headers' => $headers, 'data' => $data_table, 'class' => 'widefat fixed'));
         }
 }
 
