@@ -222,7 +222,6 @@ class xs_seo_plugin
                 $permalink = get_permalink($post->ID);
                 $title = $post->post_title;
                 $name = get_bloginfo( 'name' );
-                var_dump($meta_tags);
                 
                 echo '<meta name="twitter:card" content="summary"/>'; //FORCED
                 if(!empty($meta_tags['descr'])) {
