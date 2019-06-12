@@ -14,7 +14,7 @@ if(!defined("ABSPATH")) die;
 class xs_seo_plugin
 {
 
-        private $default = array (
+        private $default = [
                 'post_type' => [
                         'post',
                         'page'
@@ -41,19 +41,19 @@ class xs_seo_plugin
                                 'type' => 'lang'
                         ]
                 ]
-        );
+        ];
 
         private $prefix = 'xs_seo_meta_';
 
-        private $options = array( );
+        private $options = [];
 
         function __construct()
         {
-                add_action('admin_menu', array($this, 'admin_menu'));
-                add_action('admin_init', array($this, 'section_menu'));
-                add_action('save_post', array($this,'save'), 10, 2 );
-                add_action('add_meta_boxes', array($this, 'metaboxes'));
-                add_action('wp_head', array($this, 'head'));
+                add_action('admin_menu', [$this, 'admin_menu']);
+                add_action('admin_init', [$this, 'section_menu']);
+                add_action('save_post', [$this,'save'], 10, 2 );
+                add_action('add_meta_boxes', [$this, 'metaboxes']);
+                add_action('wp_head', [$this, 'head']);
 
                 $this->options = get_option('xs_options_seo', $this->default);
         }
@@ -63,7 +63,7 @@ class xs_seo_plugin
                 add_meta_box(
                         'xs_seo_metaboxes',
                         'XSoftware SEO',
-                        array($this,'metaboxes_print'),
+                        [$this,'metaboxes_print'],
                         $this->options['post_type'],
                         'advanced',
                         'high'
@@ -80,7 +80,9 @@ class xs_seo_plugin
 
                 foreach($this->options['fields'] as $key => $single) {
                         $selected[$key] = $single;
-                        $selected[$key]['value'] = isset( $values[$this->prefix.$key][0] ) ? $values[$this->prefix.$key][0] : '';
+                        $selected[$key]['value'] = isset($values[$this->prefix.$key][0]) ?
+                                $values[$this->prefix.$key][0] :
+                                '';
                 }
 
                 $data = array();
@@ -101,33 +103,36 @@ class xs_seo_plugin
                                         $languages = xs_framework::get_available_language();
 
                                         $data[$key][0] = $single['name'].':';
-                                        $data[$key][1] = xs_framework::create_select( array(
+                                        $data[$key][1] = xs_framework::create_select([
                                                 'name' => $this->prefix.$key,
                                                 'selected' => $single['value'],
                                                 'data' => $languages,
                                                 'default' => 'Select a Language'
-                                        ));
+                                        ]);
                                         break;
                                 case 'text':
                                         $data[$key][0] = $single['name'].':';
-                                        $data[$key][1] = xs_framework::create_textarea( array(
+                                        $data[$key][1] = xs_framework::create_textarea([
                                                 'class' => 'xs_full_width',
                                                 'name' => $this->prefix.$key,
                                                 'text' => $single['value']
-                                        ));
+                                        ]);
                                         break;
                                 default:
                                         $data[$key][0] = $single['name'].':';
-                                        $data[$key][1] = xs_framework::create_input( array(
+                                        $data[$key][1] = xs_framework::create_input([
                                                 'class' => 'xs_full_width',
                                                 'name' => $this->prefix.$key,
                                                 'value' => $single['value']
-                                        ));
+                                        ]);
                         }
 
                 }
 
-                xs_framework::create_table(array('class' => 'xs_full_width', 'data' => $data ));
+                xs_framework::create_table([
+                        'class' => 'xs_full_width',
+                        'data' => $data
+                ]);
         }
 
         function save($post_id, $post)
@@ -137,13 +142,24 @@ class xs_seo_plugin
 
                 foreach($this->options['fields'] as $key => $single) {
                         if(isset($_POST[$this->prefix.$key]))
-                                update_post_meta( $post_id, $this->prefix.$key, $_POST[$this->prefix.$key] );
+                                update_post_meta(
+                                        $post_id,
+                                        $this->prefix.$key,
+                                        $_POST[$this->prefix.$key]
+                                );
                 }
         }
 
         function admin_menu()
         {
-                add_submenu_page( 'xsoftware', 'XSoftware SEO','SEO', 'manage_options', 'xsoftware_seo', array($this, 'menu_page') );
+                add_submenu_page(
+                        'xsoftware',
+                        'XSoftware SEO',
+                        'SEO',
+                        'manage_options',
+                        'xsoftware_seo',
+                        [$this, 'menu_page']
+                );
         }
 
 
@@ -172,21 +188,20 @@ class xs_seo_plugin
 
         function section_menu()
         {
-                register_setting( 'xs_seo_setting', 'xs_options_seo', array($this, 'input') );
-                add_settings_section( 'xs_seo_section', 'Settings', array($this, 'show'), 'xs_seo' );
+                register_setting( 'xs_seo_setting', 'xs_options_seo', [$this, 'input'] );
+                add_settings_section( 'xs_seo_section', 'Settings', [$this, 'show'], 'xs_seo' );
         }
 
         function show()
         {
-                $tab = xs_framework::create_tabs( array(
+                $tab = xs_framework::create_tabs( [
                         'href' => '?page=xsoftware_seo',
-                        'tabs' => array(
-                                'home' => 'Homepage',
+                        'tabs' => [
                                 'post' => 'Post Types'
-                        ),
+                        ],
                         'home' => 'home',
                         'name' => 'main_tab'
-                ));
+                ]);
 
                 switch($tab) {
                         case 'home':
@@ -239,9 +254,7 @@ class xs_seo_plugin
                 if(!empty($meta_tags['keyword']))
                         echo '<meta name="keywords" content="'.$meta_tags['keyword'].'"/>';
 
-                /*if(isset($meta_tags["sydney_meta_robots"]))
-                        echo '<meta name="robots" content="'.$meta_tags["sydney_meta_robots"][0].'"/>';
-                      */
+
                 if(!empty($title)) {
                         echo '<meta property="og:title" content="'.$title.'" />';
                         echo '<meta name="twitter:title" content="'.$title.'" />';
@@ -261,13 +274,7 @@ class xs_seo_plugin
 
 
                 }
-                /*
-                if(isset($meta_tags["sydney_meta_og_video"][0]))
-                        echo '<meta property="og:video" content="'.$meta_tags["sydney_meta_og_video"][0].'" />';
 
-                if(isset($meta_tags["sydney_meta_og_audio"][0]))
-                        echo '<meta property="og:audio" content="'.$meta_tags["sydney_meta_og_audio"][0].'" />';
-                */
         }
 
         function show_post_type()
@@ -280,17 +287,21 @@ class xs_seo_plugin
                 $post_types['post'] = 'post'; // add default post type
                 $post_types['page'] = 'page'; // add default post type
 
-                $headers = array('Enable / Disable', 'Post types');
+                $headers = ['Enable / Disable', 'Post types'];
                 $data_table = array();
                 foreach($post_types as $post_type) {
-                        $data_table[$post_type][0] = xs_framework::create_input_checkbox( array(
+                        $data_table[$post_type][0] = xs_framework::create_input_checkbox([
                                 'name' => 'xs_options_seo[post_type]['.$post_type.']',
                                 'compare' => in_array($post_type, $options)
-                        ));
+                        ]);
                         $data_table[$post_type][1] = $post_type;
 
                 }
-                xs_framework::create_table(array('headers' => $headers, 'data' => $data_table, 'class' => 'widefat fixed'));
+                xs_framework::create_table([
+                        'headers' => $headers,
+                        'data' => $data_table,
+                        'class' => 'widefat fixed'
+                ]);
         }
 }
 
