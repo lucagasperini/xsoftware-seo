@@ -42,11 +42,11 @@ class xs_seo_plugin
                         ]
                 ]
         );
-        
+
         private $prefix = 'xs_seo_meta_';
-        
+
         private $options = array( );
-        
+
         function __construct()
         {
                 add_action('admin_menu', array($this, 'admin_menu'));
@@ -54,37 +54,37 @@ class xs_seo_plugin
                 add_action('save_post', array($this,'save'), 10, 2 );
                 add_action('add_meta_boxes', array($this, 'metaboxes'));
                 add_action('wp_head', array($this, 'head'));
-               
+
                 $this->options = get_option('xs_options_seo', $this->default);
         }
-        
+
         function metaboxes()
         {
                 add_meta_box(
-                        'xs_seo_metaboxes', 
-                        'XSoftware SEO', 
-                        array($this,'metaboxes_print'), 
+                        'xs_seo_metaboxes',
+                        'XSoftware SEO',
+                        array($this,'metaboxes_print'),
                         $this->options['post_type'],
                         'advanced',
                         'high'
                 );
         }
-        
+
         function metaboxes_print($post)
         {
                 $values = get_post_custom( $post->ID );
-                
+
                 xs_framework::init_admin_script();
                 xs_framework::init_admin_style();
                 wp_enqueue_media();
-                
+
                 foreach($this->options['fields'] as $key => $single) {
                         $selected[$key] = $single;
                         $selected[$key]['value'] = isset( $values[$this->prefix.$key][0] ) ? $values[$this->prefix.$key][0] : '';
                 }
-                
+
                 $data = array();
-                
+
                 foreach($selected as $key => $single) {
                         switch($single['type']) {
                                 case 'img':
@@ -99,11 +99,11 @@ class xs_seo_plugin
                                         break;
                                 case 'lang':
                                         $languages = xs_framework::get_available_language();
-                
+
                                         $data[$key][0] = $single['name'].':';
                                         $data[$key][1] = xs_framework::create_select( array(
-                                                'name' => $this->prefix.$key, 
-                                                'selected' => $single['value'], 
+                                                'name' => $this->prefix.$key,
+                                                'selected' => $single['value'],
                                                 'data' => $languages,
                                                 'default' => 'Select a Language'
                                         ));
@@ -111,7 +111,7 @@ class xs_seo_plugin
                                 case 'text':
                                         $data[$key][0] = $single['name'].':';
                                         $data[$key][1] = xs_framework::create_textarea( array(
-                                                'class' => 'xs_full_width', 
+                                                'class' => 'xs_full_width',
                                                 'name' => $this->prefix.$key,
                                                 'text' => $single['value']
                                         ));
@@ -119,45 +119,45 @@ class xs_seo_plugin
                                 default:
                                         $data[$key][0] = $single['name'].':';
                                         $data[$key][1] = xs_framework::create_input( array(
-                                                'class' => 'xs_full_width', 
+                                                'class' => 'xs_full_width',
                                                 'name' => $this->prefix.$key,
                                                 'value' => $single['value']
                                         ));
                         }
-                        
+
                 }
-                
+
                 xs_framework::create_table(array('class' => 'xs_full_width', 'data' => $data ));
         }
-        
+
         function save($post_id, $post)
         {
                 $post_type = get_post_type($post_id);
                 if (!in_array($post_type, $this->options['post_type'])) return;
-                
+
                 foreach($this->options['fields'] as $key => $single) {
                         if(isset($_POST[$this->prefix.$key]))
                                 update_post_meta( $post_id, $this->prefix.$key, $_POST[$this->prefix.$key] );
                 }
         }
-        
+
         function admin_menu()
         {
                 add_submenu_page( 'xsoftware', 'XSoftware SEO','SEO', 'manage_options', 'xsoftware_seo', array($this, 'menu_page') );
         }
-        
-        
+
+
         public function menu_page()
         {
                 if ( !current_user_can( 'manage_options' ) )  {
                         wp_die( __( 'Exit!' ) );
                 }
-                
+
                 xs_framework::init_admin_style();
                 xs_framework::init_admin_script();
-                
+
                 echo '<div class="wrap">';
-                
+
                 echo '<form action="options.php" method="post">';
 
                 settings_fields('xs_seo_setting');
@@ -165,9 +165,9 @@ class xs_seo_plugin
 
                 submit_button( '', 'primary', 'submit', true, NULL );
                 echo '</form>';
-                
+
                 echo '</div>';
-               
+
         }
 
         function section_menu()
@@ -187,7 +187,7 @@ class xs_seo_plugin
                         'home' => 'home',
                         'name' => 'main_tab'
                 ));
-                
+
                 switch($tab) {
                         case 'home':
                                 return;
@@ -200,79 +200,82 @@ class xs_seo_plugin
         function input($input)
         {
                 $current = $this->options;
-                
+
                 foreach($input as $key => $value) {
                         if($key == 'post_type')
                                 $current[$key] = array_keys($value);
                 }
-                
+
                 return $current;
         }
-        
+
         function head()
         {
                 global $post;
-                
+
+                if(empty($post))
+                        return;
+
                 $values = get_post_custom( $post->ID );
-                
+
                 foreach($this->options['fields'] as $key => $single) {
                         $meta_tags[$key] = isset( $values[$this->prefix.$key][0] ) ? $values[$this->prefix.$key][0] : '';
                 }
-                
+
                 $permalink = get_permalink($post->ID);
                 $title = $post->post_title;
                 $name = get_bloginfo( 'name' );
-                
+
                 echo '<meta name="twitter:card" content="summary"/>'; //FORCED
                 if(!empty($meta_tags['descr'])) {
                         echo '<meta name="description" content="'.$meta_tags['descr'].'"/>';
                         echo '<meta property="og:description" content="'.$meta_tags['descr'].'" />';
                         echo '<meta name="twitter:description" content="'.$meta_tags['descr'].'" />';
                 }
-                
+
                 if(!empty($name))
                         echo '<meta property="og:site_name" content="'.$name.'"/>';
-                        
+
                 if(!empty($meta_tags['keyword']))
                         echo '<meta name="keywords" content="'.$meta_tags['keyword'].'"/>';
-                        
+
                 /*if(isset($meta_tags["sydney_meta_robots"]))
                         echo '<meta name="robots" content="'.$meta_tags["sydney_meta_robots"][0].'"/>';
-                      */  
+                      */
                 if(!empty($title)) {
                         echo '<meta property="og:title" content="'.$title.'" />';
                         echo '<meta name="twitter:title" content="'.$title.'" />';
                 }
                 if(!empty($permalink))
                         echo '<meta property="og:url" content="'.$permalink.'" />';
-                        
+
                 if(!empty($meta_tags['type']))
                         echo '<meta property="og:type" content="'.$meta_tags['type'].'" />';
-                        
+
                 if(!empty($meta_tags['thumb'])) {
                         list($width, $height) = getimagesize($meta_tags['thumb']);
                         echo '<meta property="og:image" content="'.$meta_tags['thumb'].'" />';
                         echo '<meta name="twitter:image" content="'.$meta_tags['thumb'].'" />';
                         echo '<meta property="og:image:width" content="'.$width.'" />';
                         echo '<meta name="og:image:height" content="'.$height.'" />';
-                        
-                        
+
+
                 }
                 /*
                 if(isset($meta_tags["sydney_meta_og_video"][0]))
                         echo '<meta property="og:video" content="'.$meta_tags["sydney_meta_og_video"][0].'" />';
-                        
+
                 if(isset($meta_tags["sydney_meta_og_audio"][0]))
                         echo '<meta property="og:audio" content="'.$meta_tags["sydney_meta_og_audio"][0].'" />';
                 */
         }
-        
-        function show_post_type() 
+
+        function show_post_type()
         {
                 echo '<h2>Filter Post Type</h2>';
                 // get the information that actually is in the DB
                 $options = isset($this->options['post_type']) ? $this->options['post_type'] : '';
-                
+
                 $post_types = get_post_types(['_builtin' => false]); // get all custom post types
                 $post_types['post'] = 'post'; // add default post type
                 $post_types['page'] = 'page'; // add default post type
@@ -285,7 +288,7 @@ class xs_seo_plugin
                                 'compare' => in_array($post_type, $options)
                         ));
                         $data_table[$post_type][1] = $post_type;
-                        
+
                 }
                 xs_framework::create_table(array('headers' => $headers, 'data' => $data_table, 'class' => 'widefat fixed'));
         }
