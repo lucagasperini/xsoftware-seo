@@ -74,8 +74,8 @@ class xs_seo_options
                         wp_die( __( 'Exit!' ) );
                 }
 
-                xs_framework::init_admin_style();
-                xs_framework::init_admin_script();
+
+
 
                 echo '<div class="wrap">';
 
