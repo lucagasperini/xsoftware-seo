@@ -1,14 +1,5 @@
 <?php
 
-/*
-Plugin Name: XSoftware SEO
-Description: SEO management on wordpress.
-Version: 1.0
-Author: Luca Gasperini
-Author URI: https://xsoftware.it/
-Text Domain: xsoftware_seo
-*/
-
 if(!defined("ABSPATH")) die;
 
 if (!class_exists("xs_seo_options")) :
