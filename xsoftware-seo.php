@@ -46,8 +46,6 @@ class xs_seo_plugin
         {
                 $values = get_post_custom( $post->ID );
 
-
-
                 wp_enqueue_media();
 
                 $data = array();
@@ -65,7 +63,6 @@ class xs_seo_plugin
 
                         $data[] = $tmp;
                 }
-
 
                 xs_framework::html_input_array_to_table(
                         $data,
