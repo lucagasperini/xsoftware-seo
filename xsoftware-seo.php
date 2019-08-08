@@ -50,6 +50,9 @@ class xs_seo_plugin
 
                 $data = array();
 
+                if(!isset($this->options['fields']) || empty($this->options['fields']))
+                        return;
+
                 foreach($this->options['fields'] as $key => $single) {
                         $tmp['name'] = $this->prefix.$key;
                         $tmp['label'] = $single['name'];
