@@ -97,6 +97,9 @@ class xs_seo_plugin
 
                 $values = get_post_custom( $post->ID );
 
+                if(!isset($this->options['fields']) || empty($this->options['fields']))
+                        return;
+
                 foreach($this->options['fields'] as $key => $single) {
                         $meta_tags[$key] = isset( $values[$this->prefix.$key][0] ) ? $values[$this->prefix.$key][0] : '';
                 }
@@ -142,8 +145,8 @@ class xs_seo_plugin
         }
 }
 
-endif;
-
 $xs_seo_plugin = new xs_seo_plugin();
+
+endif;
 
 ?>

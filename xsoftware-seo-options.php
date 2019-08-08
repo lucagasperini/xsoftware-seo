@@ -208,8 +208,8 @@ class xs_seo_options
         }
 }
 
-endif;
-
 $xs_seo_options = new xs_seo_options();
+
+endif;
 
 ?>
